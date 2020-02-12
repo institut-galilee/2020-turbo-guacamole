@@ -2,6 +2,12 @@
 
 Dans cette exercice nous devions allumer une led avec et sans microcontrôleur.
 
+Matériels :
+  - LED
+  - Résistance
+  - Arduino
+  - Câbles
+  - Breadboard
 ### **- Sans microcontrôleur**
 
 ![github-small](https://github.com/institut-galilee/2020-turbo-guacamole/blob/master/lab/1/Exercice/1/img/ex1.1.jpeg)
@@ -19,3 +25,5 @@ Pour cette partie, nous avons écris un code qui fait clignoter la led.
 
 
 ### **Conclusion**
+
+La différence est qu'avec l'utilisation d'un microcontrôleur, il est possible de régler la luminosité de la led, alors que sans microcontrôleur il est seulement possible d'allumer ou d'éteindre la led. Avec le microcontrôleur nous pouvons faire clignoter la led par exemple.
