@@ -1,1 +1,1 @@
-Image de l'exercice 1
+Image de l'exercice 3
