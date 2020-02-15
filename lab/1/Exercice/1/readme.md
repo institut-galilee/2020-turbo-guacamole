@@ -17,7 +17,22 @@ Matériels :
 
 Pour cette partie, nous avons écris un code qui fait clignoter la led.
 
-![github-small](https://github.com/institut-galilee/2020-turbo-guacamole/blob/master/lab/1/Exercice/1/img/code_ex1.PNG)
+```C
+int led =11;
+
+void setup() {
+  pinMode(led, OUTPUT);
+}
+
+void loop() {
+  digitalWrite(led, HIGH);
+  delay(1000);
+  digitalWrite(led, LOW);
+  delay(1000);
+  digitalWrite(led, HIGH);
+  delay(1000);
+}
+```
 
 ![github-small](https://github.com/institut-galilee/2020-turbo-guacamole/blob/master/lab/1/Exercice/1/img/ex1.2_allume_clignote.jpg)
 
