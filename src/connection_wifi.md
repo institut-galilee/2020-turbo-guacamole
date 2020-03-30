@@ -12,7 +12,7 @@ void setup() {
 	while(WiFi.status() != WL_CONNECTED)
 	{
 	  delay(500);
-		Serial.print("Tentative de connexion");
+	  Serial.print("Tentative de connexion");
 		
 	}
 	
