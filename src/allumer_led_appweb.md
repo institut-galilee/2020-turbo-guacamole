@@ -1,4 +1,3 @@
-```C
 #include <WiFi.h>
 
 // Remplacer "" par son réseau, nom et mot de passe de son réseau
@@ -8,12 +7,10 @@ const char* password = "";
 // Entrées des leds
 int led1 = 25;
 int led2 = 26;
-int led3 = 27;
 
 // On initialise les états des leds a off au début
 String etat_led1 = "off";
 String etat_led2 = "off";
-String etat_led3 = "off";
 
 // Port pour le serveur web
 WiFiServer server(80);
@@ -27,12 +24,10 @@ void setup() {
   // initialisation des sorties des leds
   pinMode(led1, OUTPUT);
   pinMode(led2, OUTPUT);
-  pinMode(led3, OUTPUT);
   
   // on met les leds en éteinte
   digitalWrite(led1, LOW);
   digitalWrite(led2, LOW);
-  digitalWrite(led3, LOW);
   
   // Connexion wifi
   Serial.print("Connexion à ");
@@ -59,6 +54,7 @@ void loop() {
   
   if (client) {
     Serial.println("Nouveau client");
+    String currentLine = "";
     while (client.connected()) {            
       if (client.available()) { // On vérifie si le client a envoyé une requete            
         char c = client.read();             
@@ -90,14 +86,6 @@ void loop() {
               Serial.println("led 2 off");
               etat_led2 = "off";
               digitalWrite(led2, LOW);
-            } else if (header.indexOf("GET /3/on") >= 0) {
-              Serial.println("led 3 on");
-              etat_led3 = "on";
-              digitalWrite(led3, HIGH);
-            } else if (header.indexOf("GET /3/off") >= 0) {
-              Serial.println("led 3 off");
-              etat_led3 = "off";
-              digitalWrite(led3, LOW);
             }
           
           
@@ -129,7 +117,7 @@ void loop() {
               client.println("</div>");
             
               // On vérifie l'état des leds
-              client.println("<div  class=\"col-xs-6 col-sm-6 col-md-6 col-lg-6 inner-div"\>");
+              client.println("<div  class=\"col-xs-6 col-sm-6 col-md-6 col-lg-6 inner-div\">");
                 client.println("<p>Etat Led 2 : " + etat_led2 + "</p>");      
                 if (etat_led2=="off") {
                   client.println("<p><a href=\"/2/on\"><button type=\"button\" class=\"btn btn-info col-xs-6 col-sm-6 col-md-6 col-lg-6\">ON</button></a></p>");
@@ -137,18 +125,6 @@ void loop() {
                   client.println("<p><a href=\"/2/off\"><button type=\"button\" class=\"btn btn-info col-xs-6 col-sm-6 col-md-6 col-lg-6 button2\">OFF</button></a></p>");
                 } 
               client.println("</div>");
-            
-            
-              // On vérifie l'état des leds
-              client.println("<div  class=\"col-xs-6 col-sm-6 col-md-6 col-lg-6 inner-div"\>");
-                client.println("<p>Etat Led 3 : " + etat_led3 + "</p>");      
-                if (etat_led3=="off") {
-                  client.println("<p><a href=\"/3/on\"><button type=\"button\" class=\"btn btn-info col-xs-6 col-sm-6 col-md-6 col-lg-6\">ON</button></a></p>");
-                } else {
-                  client.println("<p><a href=\"/3/off\"><button type=\"button\" class=\"btn btn-info col-xs-6 col-sm-6 col-md-6 col-lg-6 button2\">OFF</button></a></p>");
-                } 
-              client.println("</div>");
-            client.println("</div>");
             
             client.println("</body></html>");
             
@@ -172,5 +148,3 @@ void loop() {
   }
     
 }
-
-```
