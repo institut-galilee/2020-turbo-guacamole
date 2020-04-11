@@ -1,4 +1,3 @@
-```C
 #include <WiFi.h>
 #include <Servo.h>
 
@@ -7,20 +6,30 @@ const char* ssid = "";
 const char* password = "";
 
 // Entrées des composants
-int led1 = 25;
-int led2 = 26;
-int led3 = 27;
+int led_box1 = 25;
+int led_box2 = 26;
 int servoPin = 13;
+int led_presence1 = 16;
+int led_presence2 = 17;
 
 // On initialise les états des composants a off au début
 String etat_led1 = "off";
 String etat_led2 = "off";
-String etat_led3 = "off";
 String etat_porte1 = "close";
 String etat_porte2 = "close";
 
+// définition des broches utilisées 
+int trig_presence = 12; 
+int echo = 11; 
+
+// stocker les distances
+long lecture_echo; 
+long cm;
+
 // Controle du servo
 Servo servo;
+
+int pos = 0; // controler la position du servos
 
 // Port pour le serveur web
 WiFiServer server(80);
@@ -34,15 +43,19 @@ void setup() {
   // recupere le servo
   servo.attach(servoPin); 
   
-  // initialisation des sorties des leds
-  pinMode(led1, OUTPUT);
-  pinMode(led2, OUTPUT);
-  pinMode(led3, OUTPUT);
+  // initialisation des sorties
+  pinMode(led_box1, OUTPUT);
+  pinMode(led_box2, OUTPUT);
+  pinMode(trig_presence, OUTPUT); 
+  pinMode(led_presence1, OUTPUT);
+  pinMode(led_presence2, OUTPUT);
   
   // on met les leds en éteinte
-  digitalWrite(led1, LOW);
-  digitalWrite(led2, LOW);
-  digitalWrite(led3, LOW);
+  digitalWrite(led_box1, LOW);
+  digitalWrite(led_box2, LOW);
+  digitalWrite(led_presence1, LOW);
+  digitalWrite(led_presence2, LOW);
+  digitalWrite(trig_presence, LOW);
   
   // Connexion wifi
   Serial.print("Connexion à ");
@@ -64,11 +77,33 @@ void setup() {
 }
 
 void loop() {
+  
+  digitalWrite(trig_presence, HIGH); 
+  delayMicroseconds(10); // envoi d'une impulsion sur trig de 10 microsecondes
+  digitalWrite(trig_presence, LOW); 
+  lecture_echo = pulseIn(echo, HIGH); 
+  cm = lecture_echo / 58; // lecture_echo*340/(2*10000)
+  
+  // Si on détecte une présence on allume les leds
+  if(cm > 0 && cm < 40){
+    digitalWrite(led_presence1, HIGH);
+    digitalWrite(led_presence2, HIGH);
+    delay(500);
+  } else {
+    digitalWrite(led_presence1, LOW);
+    digitalWrite(led_presence2, LOW);
+    delay(100);
+  }
+  
+  Serial.print("Distance en cm : "); 
+  Serial.println(cm); 
+  
   // On vérifie si un client se connecte
   WiFiClient client = server.available();
   
   if (client) {
     Serial.println("Nouveau client");
+    String currentLine = "";
     while (client.connected()) {            
       if (client.available()) { // On vérifie si le client a envoyé une requete            
         char c = client.read();             
@@ -87,27 +122,19 @@ void loop() {
             if (header.indexOf("GET /1/on") >= 0) {
               Serial.println("led 1 on");
               etat_led1 = "on";
-              digitalWrite(led1, HIGH);
+              digitalWrite(led_box1, HIGH);
             } else if (header.indexOf("GET /1/off") >= 0) {
               Serial.println("led 1 off");
               etat_led1 = "off";
-              digitalWrite(led1, LOW);
+              digitalWrite(led_box1, LOW);
             } else if (header.indexOf("GET /2/on") >= 0) {
               Serial.println("led 2 on");
               etat_led2 = "on";
-              digitalWrite(led2, HIGH);
+              digitalWrite(led_box2, HIGH);
             } else if (header.indexOf("GET /2/off") >= 0) {
               Serial.println("led 2 off");
               etat_led2 = "off";
-              digitalWrite(led2, LOW);
-            } else if (header.indexOf("GET /3/on") >= 0) {
-              Serial.println("led 3 on");
-              etat_led3 = "on";
-              digitalWrite(led3, HIGH);
-            } else if (header.indexOf("GET /3/off") >= 0) {
-              Serial.println("led 3 off");
-              etat_led3 = "off";
-              digitalWrite(led3, LOW);
+              digitalWrite(led_box2, LOW);
             }
             
             // Ouvrir et fermer porte
@@ -115,28 +142,28 @@ void loop() {
               Serial.println("porte 1 open");
               etat_porte1 = "open";
               for (pos = 0; pos <= 90; pos += 1) { // on tourne jusqu'a 90 degrés 
-                myservo.write(pos);
+                servo.write(pos);
                 delay(10);
               }
             } else if (header.indexOf("GET /p1/close") >= 0) {
                 Serial.println("porte 1 close");
                 etat_porte1 = "close";
                 for (pos = 90; pos >= 0; pos -= 1) { // on tourne jusqu'a 0 degrés 
-                  myservo.write(pos);
+                  servo.write(pos);
                   delay(10);
                 }
             } else if (header.indexOf("GET /p2/open") >= 0) {
                 Serial.println("porte 2 open");
                 etat_porte2 = "open";
                 for (pos = 0; pos <= 90; pos += 1) { // on tourne jusqu'a 90 degrés 
-                  myservo.write(pos);
+                  servo.write(pos);
                   delay(10);
                 }
             } else if (header.indexOf("GET /p2/close") >= 0) {
                 Serial.println("porte 2 close");
                 etat_porte2 = "close";
                 for (pos = 90; pos >= 0; pos -= 1) { // on tourne jusqu'a 0 degrés 
-                  myservo.write(pos);
+                  servo.write(pos);
                   delay(10);
                 }
             }
@@ -168,20 +195,12 @@ void loop() {
                   client.println("<p><a href=\"/1/off\"><button type=\"button\" class=\"btn btn-info col-xs-6 col-sm-6 col-md-6 col-lg-6 button2\">OFF</button></a></p>");
                 } 
               client.println("</div>");
-              client.println("<div  class=\"col-xs-6 col-sm-6 col-md-6 col-lg-6 inner-div"\>");
+              client.println("<div  class=\"col-xs-6 col-sm-6 col-md-6 col-lg-6 inner-div\">");
                 client.println("<p>Etat Led 2 : " + etat_led2 + "</p>");      
                 if (etat_led2=="off") {
                   client.println("<p><a href=\"/2/on\"><button type=\"button\" class=\"btn btn-info col-xs-6 col-sm-6 col-md-6 col-lg-6\">ON</button></a></p>");
                 } else {
                   client.println("<p><a href=\"/2/off\"><button type=\"button\" class=\"btn btn-info col-xs-6 col-sm-6 col-md-6 col-lg-6 button2\">OFF</button></a></p>");
-                } 
-              client.println("</div>");
-              client.println("<div  class=\"col-xs-6 col-sm-6 col-md-6 col-lg-6 inner-div"\>");
-                client.println("<p>Etat Led 3 : " + etat_led3 + "</p>");      
-                if (etat_led3=="off") {
-                  client.println("<p><a href=\"/3/on\"><button type=\"button\" class=\"btn btn-info col-xs-6 col-sm-6 col-md-6 col-lg-6\">ON</button></a></p>");
-                } else {
-                  client.println("<p><a href=\"/3/off\"><button type=\"button\" class=\"btn btn-info col-xs-6 col-sm-6 col-md-6 col-lg-6 button2\">OFF</button></a></p>");
                 } 
               client.println("</div>");
             
@@ -228,5 +247,3 @@ void loop() {
   }
     
 }
-
-```
