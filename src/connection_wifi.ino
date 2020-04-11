@@ -6,18 +6,16 @@ const char* password = "";
 
 void setup() {
   Serial.begin(115200);
-	WiFi.begin(ssid, password);
+  WiFi.begin(ssid, password);
+
+  while(WiFi.status() != WL_CONNECTED){
+  	delay(500);
+	Serial.print("Tentative de connexion");	
+  }
 	
-	while(WiFi.status() != WL_CONNECTED)
-	{
-	  delay(500);
-		Serial.print("Tentative de connexion");
-		
-	}
-	
-	Serial.println("Connexion etablie");
-	Serial.print("Adresse IP: ");
-	Serial.println(WiFi.localIP());
+  Serial.println("Connexion etablie");
+  Serial.print("Adresse IP: ");
+  Serial.println(WiFi.localIP());
 }
 
 void loop() {
