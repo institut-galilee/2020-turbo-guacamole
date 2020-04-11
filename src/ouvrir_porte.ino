@@ -1,4 +1,3 @@
-```C
 #include <WiFi.h>
 #include <Servo.h>
 
@@ -11,6 +10,8 @@ int servoPin = 13;
 
 // Controle du servo
 Servo servo;
+
+int pos = 0;
 
 // On initialise les états a close au début
 String etat_porte1 = "close";
@@ -51,6 +52,7 @@ void loop() {
   
   if (client) {
     Serial.println("Nouveau client");
+    String currentLine = "";
     while (client.connected()) {            
       if (client.available()) { // On vérifie si le client a envoyé une requete            
         char c = client.read();             
@@ -70,28 +72,28 @@ void loop() {
               Serial.println("porte 1 open");
               etat_porte1 = "open";
               for (pos = 0; pos <= 90; pos += 1) { // on tourne jusqu'a 90 degrés 
-                myservo.write(pos);
+                servo.write(pos);
                 delay(10);
               }
             } else if (header.indexOf("GET /p1/close") >= 0) {
                 Serial.println("porte 1 close");
                 etat_porte1 = "close";
                 for (pos = 90; pos >= 0; pos -= 1) { // on tourne jusqu'a 0 degrés 
-                  myservo.write(pos);
+                  servo.write(pos);
                   delay(10);
                 }
             } else if (header.indexOf("GET /p2/open") >= 0) {
                 Serial.println("porte 2 open");
                 etat_porte2 = "open";
                 for (pos = 0; pos <= 90; pos += 1) { // on tourne jusqu'a 90 degrés 
-                  myservo.write(pos);
+                  servo.write(pos);
                   delay(10);
                 }
             } else if (header.indexOf("GET /p2/close") >= 0) {
                 Serial.println("porte 2 close");
                 etat_porte2 = "close";
                 for (pos = 90; pos >= 0; pos -= 1) { // on tourne jusqu'a 0 degrés 
-                  myservo.write(pos);
+                  servo.write(pos);
                   delay(10);
                 }
             }
@@ -157,5 +159,3 @@ void loop() {
     
 }
 
-
-```
