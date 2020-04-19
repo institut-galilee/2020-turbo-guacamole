@@ -30,19 +30,19 @@ void setup() {
   // Connexion wifi
   Serial.print("Connexion à ");
   Serial.println(ssid);
-	WiFi.begin(ssid, password);
+  WiFi.begin(ssid, password);
 	
-	while(WiFi.status() != WL_CONNECTED)
-	{
-	  delay(500);
-		Serial.print(".");	
-	}
+  while(WiFi.status() != WL_CONNECTED)
+  {
+  	delay(500);
+	Serial.print(".");	
+  }
 	
-	Serial.println("Connexion etablie");
-	Serial.print("Adresse IP: ");
-	Serial.println(WiFi.localIP()); // On utilise pour se connecter a l'application
+  Serial.println("Connexion etablie");
+  Serial.print("Adresse IP: ");
+  Serial.println(WiFi.localIP()); // On utilise pour se connecter a l'application
 	
-	// Démmarrage du serveur.
+  // Démmarrage du serveur.
   server.begin();
 }
 
